@@ -1,4 +1,3 @@
-// Edit.js
 import React, { useEffect, useState } from 'react';
 import { Field, Form, Formik } from 'formik';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,7 +12,8 @@ export function Edit() {
     const navigate = useNavigate();
     const { id } = useParams();
     const [image, setImage] = useState(null);
-    const product = useSelector(({ products }) => products.item);
+    const [previewImage, setPreviewImage] = useState(null); // Added state for preview image
+    const product = useSelector(state => state.products.item);
 
     useEffect(() => {
         dispatch(fetchProductById(id));
@@ -27,7 +27,7 @@ export function Edit() {
                 values.image = await getDownloadURL(imageRef);
             }
 
-            dispatch(updateProduct(values)).then(() => {
+            dispatch(updateProduct({ id, updatedProduct: values })).then(() => {
                 window.alert('Product updated successfully!');
                 navigate('/home');
             });
@@ -38,7 +38,9 @@ export function Edit() {
 
     const handleImageChange = (e) => {
         if (e.target.files[0]) {
-            setImage(e.target.files[0]);
+            const selectedImage = e.target.files[0];
+            setImage(selectedImage);
+            setPreviewImage(URL.createObjectURL(selectedImage)); // Generate preview image URL
         }
     };
 
@@ -66,29 +68,22 @@ export function Edit() {
                         <Field type="number" placeholder="Quantity" name="quantity" className="form-control" />
                     </div>
                     <div className="mb-3">
-                        <input type="file" name="image" onChange={handleImageChange} className="form-control" />
-                    </div>
-                    {product?.image && (
-                        <div className="mb-3">
-                            <p>Current Image:</p>
-                            <img
-                                src={product.image}
-                                alt="Product"
-                                width="50"
-                                height="50"
-                            />
-                        </div>
-                    )}
-                    <div className="mb-3">
-                        <Field as="select" name="category" className="form-select">
-                            <option value="">Select category</option>
+                        <label htmlFor="category" className="form-label">Category</label>
+                        <Field as="select" name="category" className="form-control">
+                            <option value="">Select a category</option>
                             <option value="1">Cake</option>
                             <option value="2">Candy</option>
                         </Field>
                     </div>
                     <div className="mb-3">
-                        <button type="submit" className="btn btn-primary">Update</button>
+                        <input type="file" name="image" onChange={handleImageChange} />
                     </div>
+                    {previewImage && (
+                        <div className="mb-3">
+                            <img src={previewImage} alt="Preview" style={{ maxWidth: '200px' }} />
+                        </div>
+                    )}
+                    <button type="submit" className="btn btn-primary">Submit</button>
                 </Form>
             </Formik>
         </>

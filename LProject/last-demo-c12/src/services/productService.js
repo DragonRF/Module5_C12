@@ -1,4 +1,3 @@
-// productService.js
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -38,8 +37,7 @@ export const deleteProduct = createAsyncThunk(
 
 export const updateProduct = createAsyncThunk(
     'products/updateProduct',
-    async (updatedProduct) => {
-        const { id } = updatedProduct;
+    async ({ id, updatedProduct }) => {
         const response = await axios.put(`${API_BASE_URL}/products/${id}`, updatedProduct);
         return response.data;
     }
